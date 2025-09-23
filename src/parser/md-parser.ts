@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
-import { doesFileExist } from '@file-validation/file-validation.js';
-import { logger } from '@logger/logger.js';
+import { doesFileExist } from '@file-validation/file-validation';
+import { logger } from '@logger/logger';
 
 async function parseFile(filePath: string): Promise<string | null> {
   if (!(await doesFileExist(filePath))) {
@@ -23,8 +23,7 @@ async function parseFile(filePath: string): Promise<string | null> {
 export async function parseFileShort(
   filePath: string,
 ): Promise<{ short?: string; hasLong: boolean } | null> {
-  let short: string | undefined;
-  let longExists = false;
+  let longExists: boolean = false;
 
   if (!(await doesFileExist(filePath))) {
     return null;
@@ -36,15 +35,15 @@ export async function parseFileShort(
     return null;
   }
 
-  short = raw.match(/#\s*Короткий ответ\s+([\s\S]*?)(?=#|$)/)?.[1]?.trim();
+  const short: string | undefined = raw
+    .match(/#\s*Короткий ответ\s+([\s\S]*?)(?=#|$)/)?.[1]
+    ?.trim();
   longExists = /#\s*Длинный ответ/.test(raw);
 
   return short ? { short, hasLong: longExists } : { hasLong: longExists };
 }
 
 export async function parseFileLong(filePath: string): Promise<string | null> {
-  let long: string | undefined;
-
   if (!(await doesFileExist(filePath))) {
     return null;
   }
@@ -55,7 +54,9 @@ export async function parseFileLong(filePath: string): Promise<string | null> {
     return null;
   }
 
-  long = raw.match(/#\s*Длинный ответ\s+([\s\S]*?)(?=#|$)/)?.[1]?.trim();
+  const long: string | undefined = raw
+    .match(/#\s*Длинный ответ\s+([\s\S]*?)(?=#|$)/)?.[1]
+    ?.trim();
 
   return long || null;
 }
