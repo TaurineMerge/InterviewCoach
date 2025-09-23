@@ -21,11 +21,11 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strict": true
-  },
-  "paths": {
-    "@/*": ["./src/*"],
-    "@logger/*": ["./src/utils/logger/*"],   
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@logger/*": ["./src/utils/logger/*"],   
+    },
   },
   "exclude": [
     "node_modules",
