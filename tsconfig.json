@@ -25,6 +25,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@models/*": ["./src/models/*"],
+      "@parser/*": ["./src/parser/*"],
       "@logger/*": ["./src/utils/logger/*"],
       "@file-validation/*": ["./src/utils/file-validation/*"],
       "@id-generator/*": ["./src/utils/id-generator/*"],  
