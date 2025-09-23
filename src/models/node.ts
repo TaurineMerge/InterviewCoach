@@ -2,8 +2,9 @@ export interface FileNode {
   id: string;
   type: 'file';
   question: string;
-  shortAnswer: string;
   path: string;
+  shortAnswer?: string;
+  hasLongAnswer: boolean;
 }
 
 export interface FolderNode {
