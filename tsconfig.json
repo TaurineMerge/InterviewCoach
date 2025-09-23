@@ -23,6 +23,10 @@
     "sourceMap": true,
     "strict": true
   },
+  "paths": {
+    "@/*": ["./src/*"],
+    "@logger/*": ["./src/utils/logger/*"],   
+  },
   "exclude": [
     "node_modules",
     "dist",
