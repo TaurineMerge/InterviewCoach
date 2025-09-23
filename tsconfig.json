@@ -24,7 +24,8 @@
     "strict": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@logger/*": ["./src/utils/logger/*"],   
+      "@logger/*": ["./src/utils/logger/*"],
+      "@file-validation/*": ["./src/utils/file-validation/*"],   
     },
   },
   "exclude": [
