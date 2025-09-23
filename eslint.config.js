@@ -8,7 +8,7 @@ export default defineConfig([
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     extends: [js.configs.recommended],
-    languageOptions: { globals: { ...globals.node, ...globals.jest } },
+    languageOptions: { globals: { ...globals.node } },
   },
   globalIgnores([
     // Build
