@@ -1,0 +1,58 @@
+# Build
+**/node_modules/
+**/dist/
+
+# Cache and temporaries
+**/.cache/
+**/.eslintcache/
+**/.stylelintcache/
+
+# Logs
+**/logs/
+**/*.log
+**/pnpm-debug.log*
+
+# Config files
+**/eslint.config.js
+**/.eslintrc.js
+**/.prettierrc.js
+**/tsconfig.json
+**/tsconfig.*.json
+**/package.json
+**/pnpm-lock.yaml
+
+# Testing
+**/coverage
+
+# Environment files
+**/.env
+**/.env.*
+
+# IDE and editors
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# Git
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# Docker
+**/Dockerfile
+**/docker-compose.yml
+**/docker-compose.*.yml
+
+# Docs
+**/docs/
+**/README.md
+**/CHANGELOG.md
+**/LICENSE
+
+# Assets
+**/public/
+**/static/
+**/uploads/
+**/storage/
