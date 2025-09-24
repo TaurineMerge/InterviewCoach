@@ -14,7 +14,7 @@ export interface ProgressRepository {
     userId: string,
     questionPath: string,
     status: 'know' | 'repeat',
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   getProgress(
     userId: string,
