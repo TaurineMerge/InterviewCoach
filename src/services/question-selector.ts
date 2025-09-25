@@ -1,11 +1,11 @@
 import { shuffle } from '@shuffle/fisher-yates';
-import { ProgressRepository } from '@models/progress-repository';
+import { ProgressService } from '@/services/progress-service';
 import { QuestionSelector as QS } from '@models/question-selector';
 import { FileNode } from '@models/node';
 import { logger } from '@/utils/logger/logger';
 
 export class QuestionSelector implements QS {
-  constructor(private progressRepo: ProgressRepository) {}
+  constructor(private progressService: ProgressService) {}
 
   async selectQuestions(
     userId: string,
@@ -17,7 +17,7 @@ export class QuestionSelector implements QS {
     for (const q of questions) {
       logger.debug(`ProgressAwareSelector > Checking progress for ${q.path}`);
 
-      const progress = await this.progressRepo.getQuestionStatus(
+      const progress = await this.progressService.getQuestionStatus(
         userId,
         q.path,
       );
