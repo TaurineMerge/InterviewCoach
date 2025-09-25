@@ -9,16 +9,3 @@ export interface SessionStore {
   set(sessionId: string, state: SessionState): Promise<void>;
   delete(sessionId: string): Promise<void>;
 }
-
-export interface ProgressRepository {
-  markProgress(
-    userId: string,
-    questionPath: string,
-    status: 'know' | 'repeat',
-  ): Promise<boolean>;
-
-  getProgress(
-    userId: string,
-    questionPath: string,
-  ): Promise<'know' | 'repeat' | null>;
-}
