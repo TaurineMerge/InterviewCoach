@@ -13,11 +13,11 @@
   "keywords": [],
   "author": "TaurineMerge <plotnikov12341@gmail.com>",
   "license": "ISC",
-  "packageManager": "pnpm@10.15.1",
+  "packageManager": "pnpm@10.17.1",
   "type": "module",
   "dependencies": {
-    "pino": "^9.11.0",
-    "test": "vitest run"
+    "mongodb": "^6.20.0",
+    "pino": "^9.11.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
