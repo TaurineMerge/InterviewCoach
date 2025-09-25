@@ -7,6 +7,7 @@ export interface SessionState {
 export interface SessionStore {
   get(sessionId: string): Promise<SessionState | null>;
   set(sessionId: string, state: SessionState): Promise<void>;
+  delete(sessionId: string): Promise<void>;
 }
 
 export interface ProgressRepository {
