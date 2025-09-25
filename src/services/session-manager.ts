@@ -1,28 +1,18 @@
 import { randomUUID } from 'crypto';
 import { logger } from '@logger/logger';
-import { shuffle } from '@shuffle/fisher-yates';
-import { FileNode } from '@models/node';
-import {
-  SessionStore,
-  ProgressRepository,
-  SessionState,
-} from '@models/session';
+import { SessionStore, SessionState } from '@models/session';
 
 export class SessionManager {
-  constructor(
-    private sessionStore: SessionStore,
-    private progressRepo: ProgressRepository,
-  ) {}
+  constructor(private sessionStore: SessionStore) {}
 
-  async startSession(userId: string, questions: FileNode[]): Promise<string> {
+  async startSession(userId: string, questions: string[]): Promise<string> {
     logger.debug(`SessionManager > Starting new session for user "${userId}"`);
 
     const sessionId = randomUUID();
-    const shuffled = shuffle(questions.map((q) => q.path));
 
     const state: SessionState = {
       userId,
-      questions: shuffled,
+      questions,
       currentIndex: 0,
     };
 
@@ -36,61 +26,63 @@ export class SessionManager {
   }
 
   async getCurrentQuestion(sessionId: string): Promise<string | null> {
-    logger.debug(
-      `SessionManager > Getting current question for session "${sessionId}"`,
-    );
-
     const state = await this.sessionStore.get(sessionId);
 
     if (!state) {
-      logger.error(`SessionManager > Session "${sessionId}" not found`);
+      logger.warn(`SessionManager > Session "${sessionId}" not found`);
       return null;
     }
 
-    const currentQuestion = state?.questions[state.currentIndex];
+    if (state.currentIndex >= state.questions.length) {
+      logger.info(`SessionManager > Session "${sessionId}" is finished`);
+      return null;
+    }
 
-    logger.debug(`SessionManager > Current question: ${currentQuestion}`);
-
-    return currentQuestion ?? null;
+    return state.questions[state.currentIndex];
   }
 
   async nextQuestion(sessionId: string): Promise<string | null> {
-    logger.debug(
-      `SessionManager > Getting next question for session "${sessionId}"`,
-    );
-
     const state = await this.sessionStore.get(sessionId);
 
     if (!state) {
-      logger.error(`SessionManager > Session "${sessionId}" not found`);
+      logger.warn(`SessionManager > Session "${sessionId}" not found`);
+      return null;
+    }
+
+    if (state.currentIndex + 1 >= state.questions.length) {
+      logger.info(
+        `SessionManager > No more questions in session "${sessionId}"`,
+      );
       return null;
     }
 
     state.currentIndex++;
     await this.sessionStore.set(sessionId, state);
 
-    logger.debug(
-      `SessionManager > Next question: "${state.questions[state.currentIndex]}" for session "${sessionId}"}`,
-    );
-
-    return state.questions[state.currentIndex] ?? null;
+    return state.questions[state.currentIndex];
   }
 
-  async markProgress(
-    userId: string,
-    questionPath: string,
-    status: 'know' | 'repeat',
-  ): Promise<boolean> {
-    const isMarked = await this.progressRepo.markProgress(
-      userId,
-      questionPath,
-      status,
-    );
+  async hasNext(sessionId: string): Promise<boolean> {
+    const state = await this.sessionStore.get(sessionId);
 
-    logger.debug(
-      `SessionManager > Marked progress for user "${userId}" and question "${questionPath}" as "${status}"`,
-    );
+    if (!state) return false;
 
-    return isMarked;
+    return state.currentIndex + 1 < state.questions.length;
+  }
+
+  async endSession(sessionId: string): Promise<void> {
+    const state = await this.sessionStore.get(sessionId);
+
+    if (!state) return;
+
+    state.currentIndex = state.questions.length;
+    await this.sessionStore.set(sessionId, state);
+
+    logger.info(`SessionManager > Session "${sessionId}" marked as finished`);
+  }
+
+  async deleteSession(sessionId: string): Promise<void> {
+    await this.sessionStore.delete(sessionId);
+    logger.info(`SessionManager > Session "${sessionId}" deleted`);
   }
 }
