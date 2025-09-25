@@ -1,5 +1,5 @@
 import { shuffle } from '@shuffle/fisher-yates';
-import { ProgressRepository } from '@models/session';
+import { ProgressRepository } from '@models/progress-repository';
 import { QuestionSelector as QS } from '@models/question-selector';
 import { FileNode } from '@models/node';
 import { logger } from '@/utils/logger/logger';
@@ -17,13 +17,16 @@ export class QuestionSelector implements QS {
     for (const q of questions) {
       logger.debug(`ProgressAwareSelector > Checking progress for ${q.path}`);
 
-      const progress = await this.progressRepo.getProgress(userId, q.path);
+      const progress = await this.progressRepo.getQuestionStatus(
+        userId,
+        q.path,
+      );
 
       logger.debug(
         `ProgressAwareSelector > Progress for ${q.path}: ${progress}`,
       );
 
-      if (progress === 'repeat') {
+      if (progress === 'dont_know') {
         repeat.push(q.path);
       } else if (progress === null) {
         unknown.push(q.path);
