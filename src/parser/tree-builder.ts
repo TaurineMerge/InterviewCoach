@@ -5,11 +5,10 @@ import { parseFileShort } from '@parser/md-parser.js';
 import { createIdGenerator } from '@id-generator/id-generator.js';
 
 export async function buildTree(rootPath: string): Promise<FolderNode> {
+  // Create a new ID generator for this subtree
+  const genId = createIdGenerator();
   // Recursive function that walks through a directory and builds a tree structure
   async function walk(dir: string): Promise<FolderNode> {
-    // Create a new ID generator for this subtree
-    const genId = createIdGenerator();
-
     // Read directory entries (files and folders)
     const entries = await fs.readdir(dir, { withFileTypes: true });
     const children: TreeNode[] = [];
