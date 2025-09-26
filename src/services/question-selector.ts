@@ -1,8 +1,8 @@
-import { shuffle } from '@shuffle/fisher-yates';
-import { ProgressService } from '@/services/progress-service';
-import { QuestionSelector as QS } from '@models/question-selector';
-import { FileNode } from '@models/node';
-import { logger } from '@/utils/logger/logger';
+import { shuffle } from '@shuffle/fisher-yates.js';
+import { ProgressService } from '@/services/progress-service.js';
+import { QuestionSelector as QS } from '@models/question-selector.js';
+import { FileNode } from '@models/node.js';
+import { logger } from '@/utils/logger/logger.js';
 
 export class QuestionSelector implements QS {
   constructor(private progressService: ProgressService) {}

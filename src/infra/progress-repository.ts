@@ -2,8 +2,8 @@ import { Collection, Db } from 'mongodb';
 import {
   ProgressStatus,
   ProgressRepository,
-} from '@models/progress-repository';
-import { logger } from '@/utils/logger/logger';
+} from '@models/progress-repository.js';
+import { logger } from '@/utils/logger/logger.js';
 
 export class MongoProgressRepository implements ProgressRepository {
   private collection: Collection;

@@ -1,7 +1,7 @@
 import {
   ProgressRepository,
   ProgressStatus,
-} from '@models/progress-repository';
+} from '@models/progress-repository.js';
 
 export class ProgressService {
   constructor(private repo: ProgressRepository) {}

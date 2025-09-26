@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { logger } from '@/utils/logger/logger';
+import { logger } from '@/utils/logger/logger.js';
 
 export async function doesFileExist(filePath: string): Promise<boolean> {
   try {

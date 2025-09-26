@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
-import { logger } from '@logger/logger';
-import { SessionStore, SessionState } from '@models/session';
+import { logger } from '@logger/logger.js';
+import { SessionStore, SessionState } from '@models/session.js';
 
 export class SessionManager {
   constructor(private sessionStore: SessionStore) {}

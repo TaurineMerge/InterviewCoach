@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { FileNode, FolderNode, TreeNode } from '../models/node';
-import { parseFileShort } from './md-parser';
-import { createIdGenerator } from '@id-generator/id-generator';
+import { FileNode, FolderNode, TreeNode } from '@models/node.js';
+import { parseFileShort } from '@parser/md-parser.js';
+import { createIdGenerator } from '@id-generator/id-generator.js';
 
 export async function buildTree(rootPath: string): Promise<FolderNode> {
   // Recursive function that walks through a directory and builds a tree structure

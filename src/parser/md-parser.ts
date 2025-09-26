@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
-import { doesFileExist } from '@file-validation/file-validation';
-import { logger } from '@logger/logger';
+import { doesFileExist } from '@file-validation/file-validation.js';
+import { logger } from '@logger/logger.js';
 
 async function parseFile(filePath: string): Promise<string | null> {
   if (!(await doesFileExist(filePath))) {

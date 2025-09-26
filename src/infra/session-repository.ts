@@ -1,5 +1,5 @@
 import { RedisClientType } from 'redis';
-import { SessionState, SessionStore } from '@models/session';
+import { SessionState, SessionStore } from '@models/session.js';
 
 export class RedisSessionStore implements SessionStore {
   constructor(
