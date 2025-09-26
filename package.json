@@ -16,6 +16,7 @@
   "packageManager": "pnpm@10.17.1",
   "type": "module",
   "dependencies": {
+    "dotenv": "^17.2.2",
     "mongodb": "^6.20.0",
     "node-telegram-bot-api": "^0.66.0",
     "pino": "^9.11.0",
