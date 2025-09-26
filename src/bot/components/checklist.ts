@@ -12,8 +12,10 @@ export class Checklist {
     this.items[index]?.toggle();
   }
 
-  getItem(index: number): Checkbox | undefined {
-    return this.items[index];
+  getSelectedIndices(): number[] {
+    return this.items
+      .map((item, i) => (item.checked ? i : -1))
+      .filter((i) => i >= 0);
   }
 
   getMarkup(callbackPrefix: string): InlineKeyboardMarkup {
