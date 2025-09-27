@@ -1,31 +1,10 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { Checklist } from './components/checklist.js';
-import { Menu } from './components/menu.js';
-import { logger } from '@logger/logger.js';
-import 'dotenv/config';
-import { createHandlers } from './handlers/handlers.js';
+import { Menu } from './components/menu';
+import { Checklist } from './components/checklist';
+import { createHandlers } from './handlers/handlers';
+import { logger } from '@logger/logger';
 
-function initBot(token: string): TelegramBot {
-  if (!token) {
-    logger.error('telegram bot token is not defined');
-    throw new Error('telegram bot token is not defined');
-  }
-
-  try {
-    logger.debug('Initializing telegram bot');
-    const bot = new TelegramBot(token, { polling: true, filepath: false });
-    logger.info('Bot is up and running');
-
-    return bot;
-  } catch (error) {
-    logger.error(`telegram bot init error: ${error}`);
-    throw new Error(`telegram bot init error: ${error}`);
-  }
-}
-
-export function runBot() {
-  const bot = initBot(process.env.TG_BOT_TOKEN || '');
-
+export function runBot(bot: TelegramBot) {
   const generalTopics = ['Frontend', 'Backend', 'Архитектура', 'HR-скрининг'];
   const specificTopics = ['Next.js', 'CSS', 'Tailwind', 'Solid'];
 
@@ -45,6 +24,12 @@ export function runBot() {
   bot.on('error', (error) => logger.error(`error: ${error}`));
 
   bot.onText(/\/start/, (msg) => {
+    try {
+      const chatId = msg.chat.id;
+      logger.debug(`User ${chatId} started the bot`);
+    } catch (e) {
+      logger.error(`Error while starting the bot: ${e}`);
+    }
     bot.sendMessage(msg.chat.id, 'Выбирай темы и начинай подготовку!', {
       reply_markup: mainMenu.getMarkup('main'),
     });
