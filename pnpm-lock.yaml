@@ -11,6 +11,9 @@ importers:
       dotenv:
         specifier: ^17.2.2
         version: 17.2.2
+      mongo-seeding:
+        specifier: ^4.0.2
+        version: 4.0.2
       mongodb:
         specifier: ^6.20.0
         version: 6.20.0
@@ -720,6 +723,10 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
+  connection-string@4.4.0:
+    resolution: {integrity: sha512-D4xsUjSoE8m/B5yMOvCIHY+2ME6FIZhCq0NzBBT57Q8BuL7ArFhBK04osOfReoW4KFr5ztzFwWRdmnv9rCvu2w==}
+    engines: {node: '>=14'}
+
   core-util-is@1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
 
@@ -1312,6 +1319,9 @@ packages:
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  mongo-seeding@4.0.2:
+    resolution: {integrity: sha512-ttMZVePouvNGlp+8BiUhDH426dcOdTUOvIL3m/xq4ThPdSnFqst7OQj8j50PdFvX89c6vH4cLmFzOAlr7EYQSQ==}
 
   mongodb-connection-string-url@3.0.2:
     resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
@@ -2558,6 +2568,8 @@ snapshots:
 
   concat-map@0.0.1: {}
 
+  connection-string@4.4.0: {}
+
   core-util-is@1.0.2: {}
 
   core-util-is@1.0.3: {}
@@ -3246,6 +3258,24 @@ snapshots:
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.2
+
+  mongo-seeding@4.0.2:
+    dependencies:
+      bson: 6.10.4
+      connection-string: 4.4.0
+      debug: 4.4.3
+      extend: 3.0.2
+      import-fresh: 3.3.1
+      mongodb: 6.20.0
+    transitivePeerDependencies:
+      - '@aws-sdk/credential-providers'
+      - '@mongodb-js/zstd'
+      - gcp-metadata
+      - kerberos
+      - mongodb-client-encryption
+      - snappy
+      - socks
+      - supports-color
 
   mongodb-connection-string-url@3.0.2:
     dependencies:
