@@ -29,7 +29,9 @@ export async function connectDatabase() {
 
 export function getDatabase(): Db {
   if (!db) {
-    throw new Error('Database not initialized. Call connectDatabase() first.');
+    throw new Error(
+      'Database config > Database not initialized. Call connectDatabase() first.',
+    );
   }
   return db;
 }
