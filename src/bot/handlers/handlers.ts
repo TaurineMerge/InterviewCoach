@@ -3,12 +3,14 @@ import { combineMarkups } from '../helpers/combineMarkups.js';
 import { Checklist } from '../components/checklist.js';
 import { Menu } from '../components/menu.js';
 import { showMainMenu } from './shared.js';
+import { BotClient, SpecificItem } from '@/services/bot-client.js';
 
 export function createHandlers(
   generalChecklist: Checklist,
   specificChecklist: Checklist,
   navMenu: Menu,
   mainMenu: Menu,
+  botClient: BotClient,
 ) {
   return {
     main: async (
@@ -57,6 +59,9 @@ export function createHandlers(
       bot: TelegramBot,
     ) => {
       if (id === 'next') {
+        botClient.setGeneralTopics(
+          generalChecklist.getSelectedItems().map((item) => item.label),
+        );
         await bot.editMessageReplyMarkup(
           combineMarkups(
             specificChecklist.getMarkup('specific'),
@@ -98,7 +103,12 @@ export function createHandlers(
       query: TelegramBot.CallbackQuery,
       bot: TelegramBot,
     ) => {
-      if (id === 'next' || id === 'cancel') {
+      if (id === 'cancel') {
+        return showMainMenu(query, bot, mainMenu);
+      } else if (id === 'next') {
+        botClient.setSpecificTopics(
+          specificChecklist.getSelectedItems() as SpecificItem[],
+        );
         return showMainMenu(query, bot, mainMenu);
       }
     },
