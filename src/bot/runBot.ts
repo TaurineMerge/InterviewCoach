@@ -3,10 +3,23 @@ import { Menu } from './components/menu';
 import { Checklist } from './components/checklist';
 import { createHandlers } from './handlers/handlers';
 import { logger } from '@logger/logger';
+import { BotClient } from '@/services/bot-client';
+import { Checkbox } from './components/checkbox';
+import { TreeNode } from '@/models/node';
 
-export function runBot(bot: TelegramBot) {
-  const generalTopics = ['Frontend', 'Backend', 'Архитектура', 'HR-скрининг'];
-  const specificTopics = ['Next.js', 'CSS', 'Tailwind', 'Solid'];
+export function runBot(
+  bot: TelegramBot,
+  botClient: BotClient,
+  fsTree: TreeNode,
+) {
+  const generalTopics = Object.keys(fsTree);
+  const specificTopics: Checkbox[] = [];
+
+  for (const topic of generalTopics) {
+    for (const subtopic of fsTree[topic]) {
+      specificTopics.push(new Checkbox(subtopic, false, topic));
+    }
+  }
 
   const mainMenu = new Menu([
     { text: 'Выбрать темы', callback: 'set-topics' },
@@ -17,8 +30,10 @@ export function runBot(bot: TelegramBot) {
     { text: 'Отмена', callback: 'cancel' },
   ]);
 
-  const generalChecklist = new Checklist(generalTopics);
-  const specificChecklist = new Checklist(specificTopics);
+  const generalChecklist = new Checklist(
+    generalTopics.map((t) => new Checkbox(t)),
+  );
+  const specificChecklist = new Checklist(specificTopics.map((t) => t));
 
   bot.on('polling_error', (error) => logger.error(`polling error: ${error}`));
   bot.on('error', (error) => logger.error(`error: ${error}`));
@@ -26,6 +41,7 @@ export function runBot(bot: TelegramBot) {
   bot.onText(/\/start/, (msg) => {
     try {
       const chatId = msg.chat.id;
+      botClient.setClientId(chatId);
       logger.debug(`User ${chatId} started the bot`);
     } catch (e) {
       logger.error(`Error while starting the bot: ${e}`);
@@ -45,6 +61,7 @@ export function runBot(bot: TelegramBot) {
       specificChecklist,
       navMenu,
       mainMenu,
+      botClient,
     );
 
     const handler = handlers[prefix as keyof typeof handlers];
