@@ -13,7 +13,7 @@ export class MongoProgressRepository implements ProgressRepository {
   }
 
   async setQuestionStatus(
-    userId: string,
+    userId: number,
     path: string,
     status: ProgressStatus,
   ): Promise<void> {
@@ -38,7 +38,7 @@ export class MongoProgressRepository implements ProgressRepository {
   }
 
   async getQuestionStatus(
-    userId: string,
+    userId: number,
     path: string,
   ): Promise<ProgressStatus | null> {
     logger.debug(
@@ -56,7 +56,7 @@ export class MongoProgressRepository implements ProgressRepository {
     return doc?.status ?? null;
   }
 
-  async resetUserProgress(userId: string) {
+  async resetUserProgress(userId: number) {
     logger.debug(
       `ProgressRepository > Resetting progress for user "${userId}"`,
     );
@@ -73,7 +73,7 @@ export class MongoProgressRepository implements ProgressRepository {
     }
   }
 
-  async getStats(userId: string): Promise<{ know: number; dontKnow: number }> {
+  async getStats(userId: number): Promise<{ know: number; dontKnow: number }> {
     logger.debug(`ProgressRepository > Getting stats for user "${userId}"`);
     try {
       const pipeline = [
@@ -98,7 +98,7 @@ export class MongoProgressRepository implements ProgressRepository {
     }
   }
 
-  async getAll(userId: string): Promise<Record<string, ProgressStatus>> {
+  async getAll(userId: number): Promise<Record<string, ProgressStatus>> {
     logger.debug(
       `ProgressRepository > Getting all progress for user "${userId}"`,
     );

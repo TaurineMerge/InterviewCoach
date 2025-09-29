@@ -1,5 +1,5 @@
 export interface SessionState {
-  userId: string;
+  userId: number;
   questions: string[];
   currentIndex: number;
 }

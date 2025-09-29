@@ -2,14 +2,14 @@ export type ProgressStatus = 'know' | 'dont_know';
 
 export interface ProgressRepository {
   setQuestionStatus(
-    userId: string,
+    userId: number,
     path: string,
     status: ProgressStatus,
   ): Promise<void>;
   getQuestionStatus(
-    userId: string,
+    userId: number,
     path: string,
   ): Promise<ProgressStatus | null>;
-  resetUserProgress(userId: string): Promise<void>;
-  getStats(userId: string): Promise<{ know: number; dontKnow: number }>;
+  resetUserProgress(userId: number): Promise<void>;
+  getStats(userId: number): Promise<{ know: number; dontKnow: number }>;
 }

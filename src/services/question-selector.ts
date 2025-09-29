@@ -8,7 +8,7 @@ export class QuestionSelector implements QS {
   constructor(private progressService: ProgressService) {}
 
   async selectQuestions(
-    userId: string,
+    userId: number,
     questions: FileNode[],
   ): Promise<string[]> {
     const repeat: string[] = [];

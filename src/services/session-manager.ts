@@ -5,7 +5,7 @@ import { SessionStore, SessionState } from '@models/session.js';
 export class SessionManager {
   constructor(private sessionStore: SessionStore) {}
 
-  async startSession(userId: string, questions: string[]): Promise<string> {
+  async startSession(userId: number, questions: string[]): Promise<string> {
     logger.debug(`SessionManager > Starting new session for user "${userId}"`);
 
     const sessionId = randomUUID();
