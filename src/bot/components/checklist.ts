@@ -4,8 +4,8 @@ import { Checkbox } from './checkbox.js';
 export class Checklist {
   private items: Checkbox[];
 
-  constructor(labels: string[]) {
-    this.items = labels.map((label) => new Checkbox(label));
+  constructor(items: Checkbox[]) {
+    this.items = items;
   }
 
   toggle(index: number) {
@@ -16,6 +16,10 @@ export class Checklist {
     return this.items
       .map((item, i) => (item.checked ? i : -1))
       .filter((i) => i >= 0);
+  }
+
+  getSelectedItems(): Checkbox[] {
+    return this.items.filter((item) => item.checked);
   }
 
   getMarkup(callbackPrefix: string): InlineKeyboardMarkup {
