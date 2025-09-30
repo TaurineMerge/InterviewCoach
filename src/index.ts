@@ -8,11 +8,14 @@ import { ProgressService } from '@/services/progress-service';
 import { MongoProgressRepository } from './infra/progress-repository';
 import { SessionManager } from '@/services/session-manager';
 import { RedisSessionStore } from './infra/session-repository';
+import { getDatabase } from '@/config/database/database-config';
 
 async function main() {
   const fsTree = await buildTree(process.env.QUESTIONS_ROOT_DIR || '');
 
-  const progressRepository = new MongoProgressRepository();
+  const db = getDatabase();
+
+  const progressRepository = new MongoProgressRepository(db);
   const sessionRepository = new RedisSessionStore();
 
   const progressService = new ProgressService(progressRepository);
