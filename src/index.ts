@@ -1,15 +1,21 @@
-import { initBot } from './bot/initBot';
-import { runBot } from './bot/runBot';
-import { BotClient } from '@/services/bot-client';
-import { buildTree } from '@parser/tree-builder';
+import { initBot } from './bot/initBot.js';
+import { runBot } from './bot/runBot.js';
+import { BotClient } from '@/services/bot-client.js';
+import { buildTree } from '@parser/tree-builder.js';
 import 'dotenv/config';
-import { QuestionSelector } from '@/services/question-selector';
-import { ProgressService } from '@/services/progress-service';
-import { MongoProgressRepository } from './infra/progress-repository';
-import { SessionManager } from '@/services/session-manager';
-import { RedisSessionStore } from './infra/session-repository';
-import { getDatabase, closeDatabase } from '@/config/database/database-config';
-import { connectSession, closeSession } from './config/session/session-config';
+import { QuestionSelector } from '@/services/question-selector.js';
+import { ProgressService } from '@/services/progress-service.js';
+import { MongoProgressRepository } from './infra/progress-repository.js';
+import { SessionManager } from '@/services/session-manager.js';
+import { RedisSessionStore } from './infra/session-repository.js';
+import {
+  getDatabase,
+  closeDatabase,
+} from '@/config/database/database-config.js';
+import {
+  connectSession,
+  closeSession,
+} from './config/session/session-config.js';
 
 async function main() {
   const fsTree = await buildTree(process.env.QUESTIONS_ROOT_DIR || '');

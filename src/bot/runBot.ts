@@ -1,11 +1,11 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { Menu } from './components/menu';
-import { Checklist } from './components/checklist';
-import { createHandlers } from './handlers/handlers';
-import { logger } from '@logger/logger';
-import { BotClient } from '@/services/bot-client';
-import { Checkbox } from './components/checkbox';
-import { TreeNode } from '@/models/node';
+import { Menu } from './components/menu.js';
+import { Checklist } from './components/checklist.js';
+import { createHandlers } from './handlers/handlers.js';
+import { logger } from '@logger/logger.js';
+import { BotClient } from '@/services/bot-client.js';
+import { Checkbox } from './components/checkbox.js';
+import { TreeNode } from '@/models/node.js';
 
 export function runBot(
   bot: TelegramBot,
