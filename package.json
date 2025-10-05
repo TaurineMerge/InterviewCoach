@@ -9,7 +9,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "test": "vitest run",
-    "seed": "pnpm dlx ts-node scripts/database/seeder.ts"
+    "seed:database": "pnpm dlx ts-node scripts/database/seeder.ts",
+    "seed:session": "pnpm dlx ts-node scripts/session/seeder.ts"
   },
   "keywords": [],
   "author": "TaurineMerge <plotnikov12341@gmail.com>",
