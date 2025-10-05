@@ -1,5 +1,6 @@
 import { logger } from '@logger/logger';
 import { createClient, RedisClientType } from 'redis';
+import 'dotenv/config';
 
 let client: RedisClientType | null = null;
 
