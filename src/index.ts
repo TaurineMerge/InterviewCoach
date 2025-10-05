@@ -1,6 +1,5 @@
 import { initBot } from './bot/initBot.js';
 import { runBot } from './bot/runBot.js';
-import { BotClient } from '@/services/bot-client.js';
 import { buildTree } from '@parser/tree-builder.js';
 import 'dotenv/config';
 import { QuestionSelector } from '@/services/question-selector.js';
@@ -16,6 +15,7 @@ import {
   connectSession,
   closeSession,
 } from './config/session/session-config.js';
+import { BotSessionRegistry } from '@/services/bot-session-registry.js';
 
 async function main() {
   const fsTree = await buildTree(process.env.QUESTIONS_ROOT_DIR || '');
@@ -31,8 +31,12 @@ async function main() {
   const sessionManager = new SessionManager(sessionRepository);
 
   const bot = initBot(process.env.TG_BOT_TOKEN || '');
-  const botClient = new BotClient(sessionManager, questionSelector, fsTree);
-  runBot(bot, botClient, fsTree);
+  const botSessionRegistry = new BotSessionRegistry(
+    sessionManager,
+    questionSelector,
+    fsTree,
+  );
+  runBot(bot, botSessionRegistry, fsTree);
 
   process.on('SIGINT', async () => {
     await closeSession();

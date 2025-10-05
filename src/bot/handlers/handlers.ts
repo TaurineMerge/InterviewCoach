@@ -3,14 +3,15 @@ import { combineMarkups } from '../helpers/combineMarkups.js';
 import { Checklist } from '../components/checklist.js';
 import { Menu } from '../components/menu.js';
 import { showMainMenu } from './shared.js';
-import { BotClient, SpecificItem } from '@/services/bot-client.js';
+import { BotSessionRegistry } from '@/services/bot-session-registry.js';
+import { SpecificItem } from '@/services/bot-client.js';
 
 export function createHandlers(
   generalChecklist: Checklist,
   specificChecklist: Checklist,
   navMenu: Menu,
   mainMenu: Menu,
-  botClient: BotClient,
+  clientSessionRegistry: BotSessionRegistry,
 ) {
   return {
     main: async (
@@ -59,9 +60,11 @@ export function createHandlers(
       bot: TelegramBot,
     ) => {
       if (id === 'next') {
-        botClient.setGeneralTopics(
-          generalChecklist.getSelectedItems().map((item) => item.label),
-        );
+        clientSessionRegistry
+          .getOrCreate(query.from!.id)
+          .setGeneralTopics(
+            generalChecklist.getSelectedItems().map((item) => item.label),
+          );
         await bot.editMessageReplyMarkup(
           combineMarkups(
             specificChecklist.getMarkup('specific'),
@@ -106,9 +109,11 @@ export function createHandlers(
       if (id === 'cancel') {
         return showMainMenu(query, bot, mainMenu);
       } else if (id === 'next') {
-        botClient.setSpecificTopics(
-          specificChecklist.getSelectedItems() as SpecificItem[],
-        );
+        clientSessionRegistry
+          .getOrCreate(query.from!.id)
+          .setSpecificTopics(
+            specificChecklist.getSelectedItems() as SpecificItem[],
+          );
         return showMainMenu(query, bot, mainMenu);
       }
     },

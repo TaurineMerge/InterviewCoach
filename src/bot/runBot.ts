@@ -3,13 +3,13 @@ import { Menu } from './components/menu.js';
 import { Checklist } from './components/checklist.js';
 import { createHandlers } from './handlers/handlers.js';
 import { logger } from '@logger/logger.js';
-import { BotClient } from '@/services/bot-client.js';
+import { BotSessionRegistry } from '@/services/bot-session-registry.js';
 import { Checkbox } from './components/checkbox.js';
 import { TreeNode } from '@/models/node.js';
 
 export function runBot(
   bot: TelegramBot,
-  botClient: BotClient,
+  clientSessionRegistry: BotSessionRegistry,
   fsTree: TreeNode,
 ) {
   const generalTopics = Object.keys(fsTree);
@@ -41,7 +41,7 @@ export function runBot(
   bot.onText(/\/start/, (msg) => {
     try {
       const chatId = msg.chat.id;
-      botClient.setClientId(chatId);
+      clientSessionRegistry.getOrCreate(chatId);
       logger.debug(`User ${chatId} started the bot`);
     } catch (e) {
       logger.error(`Error while starting the bot: ${e}`);
@@ -61,7 +61,7 @@ export function runBot(
       specificChecklist,
       navMenu,
       mainMenu,
-      botClient,
+      clientSessionRegistry,
     );
 
     const handler = handlers[prefix as keyof typeof handlers];
