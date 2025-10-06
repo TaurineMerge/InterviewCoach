@@ -38,7 +38,15 @@ export class SessionManager {
       return null;
     }
 
-    return state.questions[state.currentIndex];
+    const questionPath = state.questions[state.currentIndex];
+    const question = questionPath.split('/').pop();
+    logger.debug(
+      `SessionManager > Current question for session "${sessionId}": "${question}"`,
+    );
+
+    if (!question) return null;
+
+    return question;
   }
 
   async nextQuestion(sessionId: string): Promise<string | null> {
