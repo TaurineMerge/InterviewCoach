@@ -1,26 +1,13 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { Menu } from './components/menu.js';
-import { Checklist } from './components/checklist.js';
 import { createHandlers } from './handlers/handlers.js';
 import { logger } from '@logger/logger.js';
 import { BotSessionRegistry } from '@/services/bot-session-registry.js';
-import { Checkbox } from './components/checkbox.js';
-import { TreeNode } from '@/models/node.js';
 
 export function runBot(
   bot: TelegramBot,
   clientSessionRegistry: BotSessionRegistry,
-  fsTree: TreeNode,
 ) {
-  const generalTopics = Object.keys(fsTree);
-  const specificTopics: Checkbox[] = [];
-
-  for (const topic of generalTopics) {
-    for (const subtopic of fsTree[topic]) {
-      specificTopics.push(new Checkbox(subtopic, false, topic));
-    }
-  }
-
   const mainMenu = new Menu([
     { text: 'Выбрать темы', callback: 'set-topics' },
     { text: 'Начать подготовку', callback: 'start-interview' },
@@ -30,18 +17,14 @@ export function runBot(
     { text: 'Отмена', callback: 'cancel' },
   ]);
 
-  const generalChecklist = new Checklist(
-    generalTopics.map((t) => new Checkbox(t)),
-  );
-  const specificChecklist = new Checklist(specificTopics.map((t) => t));
-
   bot.on('polling_error', (error) => logger.error(`polling error: ${error}`));
   bot.on('error', (error) => logger.error(`error: ${error}`));
 
   bot.onText(/\/start/, (msg) => {
     try {
       const chatId = msg.chat.id;
-      clientSessionRegistry.getOrCreate(chatId);
+      const client = clientSessionRegistry.getOrCreate(chatId);
+      client.initChecklists();
       logger.debug(`User ${chatId} started the bot`);
     } catch (e) {
       logger.error(`Error while starting the bot: ${e}`);
@@ -55,14 +38,10 @@ export function runBot(
     const chatId = query.message?.chat.id;
     if (!chatId) return;
 
+    const client = clientSessionRegistry.getOrCreate(chatId);
+
     const [prefix, id] = query.data?.split('_') || [];
-    const handlers = createHandlers(
-      generalChecklist,
-      specificChecklist,
-      navMenu,
-      mainMenu,
-      clientSessionRegistry,
-    );
+    const handlers = createHandlers(navMenu, mainMenu, client);
 
     const handler = handlers[prefix as keyof typeof handlers];
     if (handler) {
