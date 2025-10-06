@@ -1,18 +1,16 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { combineMarkups } from '../helpers/combineMarkups.js';
-import { Checklist } from '../components/checklist.js';
 import { Menu } from '../components/menu.js';
 import { showMainMenu } from './shared.js';
-import { BotSessionRegistry } from '@/services/bot-session-registry.js';
-import { SpecificItem } from '@/services/bot-client.js';
+import { BotClient, SpecificItem } from '@/services/bot-client.js';
 
 export function createHandlers(
-  generalChecklist: Checklist,
-  specificChecklist: Checklist,
   navMenu: Menu,
   mainMenu: Menu,
-  clientSessionRegistry: BotSessionRegistry,
+  client: BotClient,
 ) {
+  const generalChecklist = client.getGeneralChecklist()!;
+  let specificChecklist = client.getSpecificChecklist()!;
   return {
     main: async (
       id: string,
@@ -30,6 +28,8 @@ export function createHandlers(
           ),
           { chat_id: chatId, message_id: query.message!.message_id },
         );
+      } else if (id === 'start-interview') {
+        await client.startSession();
       }
     },
 
@@ -60,11 +60,11 @@ export function createHandlers(
       bot: TelegramBot,
     ) => {
       if (id === 'next') {
-        clientSessionRegistry
-          .getOrCreate(query.from!.id)
-          .setGeneralTopics(
-            generalChecklist.getSelectedItems().map((item) => item.label),
-          );
+        client.setGeneralTopics(
+          generalChecklist.getSelectedItems().map((item) => item.label),
+        );
+        client.updateSpecificChecklist();
+        specificChecklist = client.getSpecificChecklist()!;
         await bot.editMessageReplyMarkup(
           combineMarkups(
             specificChecklist.getMarkup('specific'),
@@ -109,11 +109,9 @@ export function createHandlers(
       if (id === 'cancel') {
         return showMainMenu(query, bot, mainMenu);
       } else if (id === 'next') {
-        clientSessionRegistry
-          .getOrCreate(query.from!.id)
-          .setSpecificTopics(
-            specificChecklist.getSelectedItems() as SpecificItem[],
-          );
+        client.setSpecificTopics(
+          specificChecklist.getSelectedItems() as SpecificItem[],
+        );
         return showMainMenu(query, bot, mainMenu);
       }
     },
