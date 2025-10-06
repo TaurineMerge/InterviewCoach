@@ -8,6 +8,7 @@ export class Question {
   getMarkup() {
     return {
       inline_keyboard: [
+        [{ text: this.text, callback_data: 'text' }],
         [
           { text: 'Знаю ✅', callback_data: 'know' },
           { text: 'Не знаю ❌', callback_data: 'dont_know' },
@@ -16,6 +17,8 @@ export class Question {
           { text: 'Короткий ответ', callback_data: 'short' },
           { text: 'Длинный ответ', callback_data: 'long' },
         ],
+        [{ text: 'Пропустить', callback_data: 'skip' }],
+        [{ text: 'В главное меню', callback_data: 'main' }],
       ],
     };
   }
