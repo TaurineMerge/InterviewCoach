@@ -3,6 +3,7 @@ import { combineMarkups } from '../helpers/combineMarkups.js';
 import { Menu } from '../components/menu.js';
 import { showMainMenu } from './shared.js';
 import { BotClient, SpecificItem } from '@/services/bot-client.js';
+import { Question } from '../components/question.js';
 
 export function createHandlers(
   navMenu: Menu,
@@ -30,6 +31,13 @@ export function createHandlers(
         );
       } else if (id === 'start-interview') {
         await client.startSession();
+        const curQuestion = await client.getCurrentQuestion();
+        if (curQuestion) {
+          await bot.editMessageReplyMarkup(
+            new Question(curQuestion).getMarkup(),
+            { chat_id: chatId, message_id: query.message!.message_id },
+          );
+        }
       }
     },
 

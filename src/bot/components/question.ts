@@ -1,8 +1,8 @@
 export class Question {
   constructor(
     public text: string,
-    public shortAnswer: string,
-    public longAnswer: string,
+    public shortAnswer?: string,
+    public longAnswer?: string,
   ) {}
 
   getMarkup() {
