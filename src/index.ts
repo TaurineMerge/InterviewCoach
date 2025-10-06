@@ -36,7 +36,7 @@ async function main() {
     questionSelector,
     fsTree,
   );
-  runBot(bot, botSessionRegistry, fsTree);
+  runBot(bot, botSessionRegistry);
 
   process.on('SIGINT', async () => {
     await closeSession();
