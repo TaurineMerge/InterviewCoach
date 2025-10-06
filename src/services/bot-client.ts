@@ -151,4 +151,9 @@ export class BotClient {
     if (!this.sessionId) return;
     await this.sessionManager.endSession(this.sessionId);
   }
+
+  getCurrentQuestion(): Promise<string | null> {
+    if (!this.sessionId) return Promise.resolve(null);
+    return this.sessionManager.getCurrentQuestion(this.sessionId);
+  }
 }
