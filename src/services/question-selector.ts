@@ -3,6 +3,7 @@ import { ProgressService } from '@/services/progress-service.js';
 import { QuestionSelector as QS } from '@models/question-selector.js';
 import { FileNode } from '@models/node.js';
 import { logger } from '@/utils/logger/logger.js';
+import { ProgressStatus } from '@/models/progress-repository';
 
 export class QuestionSelector implements QS {
   constructor(private progressService: ProgressService) {}
@@ -34,5 +35,13 @@ export class QuestionSelector implements QS {
     }
 
     return [...shuffle(repeat), ...shuffle(unknown)];
+  }
+
+  markQuestion(
+    userId: number,
+    path: string,
+    status: ProgressStatus,
+  ): Promise<void> {
+    return this.progressService.markQuestion(userId, path, status);
   }
 }
