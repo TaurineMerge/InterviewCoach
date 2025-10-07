@@ -34,7 +34,7 @@ export function createHandlers(
         const curQuestion = await client.getCurrentQuestion();
         if (curQuestion) {
           await bot.editMessageReplyMarkup(
-            new Question(curQuestion).getMarkup(),
+            new Question(curQuestion).getMarkup('question'),
             { chat_id: chatId, message_id: query.message!.message_id },
           );
         }
@@ -121,6 +121,82 @@ export function createHandlers(
           specificChecklist.getSelectedItems() as SpecificItem[],
         );
         return showMainMenu(query, bot, mainMenu);
+      }
+    },
+
+    question: async (
+      id: string,
+      query: TelegramBot.CallbackQuery,
+      bot: TelegramBot,
+    ) => {
+      try {
+        const chatId = query.message?.chat.id;
+        const messageId = query.message?.message_id;
+
+        if (!chatId || !messageId) return;
+
+        const handlers: Record<string, () => Promise<void>> = {
+          main: async () => showMainMenu(query, bot, mainMenu),
+          skip: async () => {
+            const curQuestion = await client.getNextQuestion();
+            if (curQuestion) {
+              await bot.editMessageReplyMarkup(
+                new Question(curQuestion).getMarkup('question'),
+                { chat_id: chatId, message_id: messageId },
+              );
+            }
+          },
+          know: async () => {
+            const questionPath = await client.getCurrentQuestionPath();
+            if (questionPath) {
+              await client.markQuestion(questionPath, 'know');
+              const curQuestion = await client.getNextQuestion();
+              if (curQuestion) {
+                await bot.editMessageReplyMarkup(
+                  new Question(curQuestion).getMarkup('question'),
+                  { chat_id: chatId, message_id: messageId },
+                );
+              }
+            }
+          },
+          'dont-know': async () => {
+            const questionPath = await client.getCurrentQuestionPath();
+            if (questionPath) {
+              await client.markQuestion(questionPath, 'dont_know');
+              const curQuestion = await client.getNextQuestion();
+              if (curQuestion) {
+                await bot.editMessageReplyMarkup(
+                  new Question(curQuestion).getMarkup('question'),
+                  { chat_id: chatId, message_id: messageId },
+                );
+              }
+            }
+          },
+          short: async () => {
+            const curQuestion = await client.getNextQuestion();
+            if (curQuestion) {
+              await bot.editMessageReplyMarkup(
+                new Question(curQuestion).getMarkup('question'),
+                { chat_id: chatId, message_id: messageId },
+              );
+            }
+          },
+          long: async () => {
+            const curQuestion = await client.getNextQuestion();
+            if (curQuestion) {
+              await bot.editMessageReplyMarkup(
+                new Question(curQuestion).getMarkup('question'),
+                { chat_id: chatId, message_id: messageId },
+              );
+            }
+          },
+        };
+
+        if (handlers[id]) {
+          await handlers[id]();
+        }
+      } catch (error) {
+        console.error('Error in question handler:', error);
       }
     },
   };
