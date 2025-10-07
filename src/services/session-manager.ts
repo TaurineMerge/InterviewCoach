@@ -26,6 +26,14 @@ export class SessionManager {
   }
 
   async getCurrentQuestion(sessionId: string): Promise<string | null> {
+    const questionPath = await this.getCurrentQuestionPath(sessionId);
+    if (!questionPath) return null;
+    const question = questionPath.split('/').pop()?.split('.')[0];
+    if (!question) return null;
+    return question;
+  }
+
+  async getCurrentQuestionPath(sessionId: string): Promise<string | null> {
     const state = await this.sessionStore.get(sessionId);
 
     if (!state) {
@@ -39,14 +47,13 @@ export class SessionManager {
     }
 
     const questionPath = state.questions[state.currentIndex];
-    const question = questionPath.split('/').pop();
     logger.debug(
-      `SessionManager > Current question for session "${sessionId}": "${question}"`,
+      `SessionManager > Current question for session "${sessionId}": "${questionPath}"`,
     );
 
-    if (!question) return null;
+    if (!questionPath) return null;
 
-    return question;
+    return questionPath;
   }
 
   async nextQuestion(sessionId: string): Promise<string | null> {
@@ -67,7 +74,15 @@ export class SessionManager {
     state.currentIndex++;
     await this.sessionStore.set(sessionId, state);
 
-    return state.questions[state.currentIndex];
+    const questionPath = state.questions[state.currentIndex];
+    logger.debug(
+      `SessionManager > Next question for session "${sessionId}": "${questionPath}"`,
+    );
+
+    const question = questionPath.split('/').pop()?.split('.')[0];
+    if (!question) return null;
+
+    return question;
   }
 
   async hasNext(sessionId: string): Promise<boolean> {
