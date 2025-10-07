@@ -3,6 +3,7 @@ import { QuestionSelector } from '@/services/question-selector.js';
 import { SessionManager } from '@/services/session-manager.js';
 import { Checklist } from '@/bot/components/checklist.js';
 import { Checkbox } from '@/bot/components/checkbox.js';
+import { ProgressStatus } from '@/models/progress-repository';
 
 export interface SpecificItem {
   label: string;
@@ -155,5 +156,29 @@ export class BotClient {
   getCurrentQuestion(): Promise<string | null> {
     if (!this.sessionId) return Promise.resolve(null);
     return this.sessionManager.getCurrentQuestion(this.sessionId);
+  }
+
+  getCurrentQuestionPath(): Promise<string | null> {
+    if (!this.sessionId) return Promise.resolve(null);
+    return this.sessionManager.getCurrentQuestionPath(this.sessionId);
+  }
+
+  getNextQuestion(): Promise<string | null> {
+    if (!this.sessionId) return Promise.resolve(null);
+    if (!this.sessionManager.hasNext(this.sessionId)) {
+      return Promise.resolve(null);
+    }
+    return this.sessionManager.nextQuestion(this.sessionId);
+  }
+
+  markQuestion(questionPath: string, status: ProgressStatus): Promise<void> {
+    if (!this.sessionId) return Promise.resolve();
+    if (!this.questionSelector) return Promise.resolve();
+    if (!this.clientId) return Promise.resolve();
+    return this.questionSelector.markQuestion(
+      this.clientId,
+      questionPath,
+      status,
+    );
   }
 }
