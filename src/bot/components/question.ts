@@ -5,20 +5,20 @@ export class Question {
     public longAnswer?: string,
   ) {}
 
-  getMarkup() {
+  getMarkup(callbackPrefix: string) {
     return {
       inline_keyboard: [
-        [{ text: this.text, callback_data: 'text' }],
+        [{ text: this.text, callback_data: `${callbackPrefix}_text` }],
         [
-          { text: 'Знаю ✅', callback_data: 'know' },
-          { text: 'Не знаю ❌', callback_data: 'dont_know' },
+          { text: 'Знаю ✅', callback_data: `${callbackPrefix}_know` },
+          { text: 'Не знаю ❌', callback_data: `${callbackPrefix}_dont-know` },
         ],
         [
-          { text: 'Короткий ответ', callback_data: 'short' },
-          { text: 'Длинный ответ', callback_data: 'long' },
+          { text: 'Короткий ответ', callback_data: `${callbackPrefix}_short` },
+          { text: 'Длинный ответ', callback_data: `${callbackPrefix}_long` },
         ],
-        [{ text: 'Пропустить', callback_data: 'skip' }],
-        [{ text: 'В главное меню', callback_data: 'main' }],
+        [{ text: 'Пропустить', callback_data: `${callbackPrefix}_skip` }],
+        [{ text: 'В главное меню', callback_data: `${callbackPrefix}_main` }],
       ],
     };
   }
