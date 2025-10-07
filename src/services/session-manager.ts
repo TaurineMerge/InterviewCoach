@@ -1,11 +1,12 @@
 import { randomUUID } from 'crypto';
 import { logger } from '@logger/logger.js';
 import { SessionStore, SessionState } from '@models/session.js';
+import { FileNode } from '@/models/node';
 
 export class SessionManager {
   constructor(private sessionStore: SessionStore) {}
 
-  async startSession(userId: number, questions: string[]): Promise<string> {
+  async startSession(userId: number, questions: FileNode[]): Promise<string> {
     logger.debug(`SessionManager > Starting new session for user "${userId}"`);
 
     const sessionId = randomUUID();
@@ -26,9 +27,20 @@ export class SessionManager {
   }
 
   async getCurrentQuestion(sessionId: string): Promise<string | null> {
-    const questionPath = await this.getCurrentQuestionPath(sessionId);
-    if (!questionPath) return null;
-    const question = questionPath.split('/').pop()?.split('.')[0];
+    const state = await this.sessionStore.get(sessionId);
+
+    if (!state) {
+      logger.warn(`SessionManager > Session "${sessionId}" not found`);
+      return null;
+    }
+
+    if (state.currentIndex >= state.questions.length) {
+      logger.info(`SessionManager > Session "${sessionId}" is finished`);
+      return null;
+    }
+
+    const question = state.questions[state.currentIndex].question;
+
     if (!question) return null;
     return question;
   }
@@ -46,7 +58,7 @@ export class SessionManager {
       return null;
     }
 
-    const questionPath = state.questions[state.currentIndex];
+    const questionPath = state.questions[state.currentIndex].path;
     logger.debug(
       `SessionManager > Current question for session "${sessionId}": "${questionPath}"`,
     );
@@ -74,12 +86,7 @@ export class SessionManager {
     state.currentIndex++;
     await this.sessionStore.set(sessionId, state);
 
-    const questionPath = state.questions[state.currentIndex];
-    logger.debug(
-      `SessionManager > Next question for session "${sessionId}": "${questionPath}"`,
-    );
-
-    const question = questionPath.split('/').pop()?.split('.')[0];
+    const question = state.questions[state.currentIndex].question;
     if (!question) return null;
 
     return question;

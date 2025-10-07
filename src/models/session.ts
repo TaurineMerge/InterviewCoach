@@ -1,6 +1,8 @@
+import { FileNode } from './node';
+
 export interface SessionState {
   userId: number;
-  questions: string[];
+  questions: FileNode[];
   currentIndex: number;
 }
 

@@ -141,7 +141,7 @@ export class BotClient {
     return paths;
   }
 
-  private async getFilteredQuestions(): Promise<string[]> {
+  private async getFilteredQuestions(): Promise<FileNode[]> {
     return this.questionSelector.selectQuestions(
       this.clientId!,
       this.getAllQuestionPaths(),

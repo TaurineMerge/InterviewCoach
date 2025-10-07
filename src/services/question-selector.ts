@@ -11,9 +11,9 @@ export class QuestionSelector implements QS {
   async selectQuestions(
     userId: number,
     questions: FileNode[],
-  ): Promise<string[]> {
-    const repeat: string[] = [];
-    const unknown: string[] = [];
+  ): Promise<FileNode[]> {
+    const repeat: FileNode[] = [];
+    const unknown: FileNode[] = [];
 
     for (const q of questions) {
       logger.debug(`ProgressAwareSelector > Checking progress for ${q.path}`);
@@ -28,9 +28,9 @@ export class QuestionSelector implements QS {
       );
 
       if (progress === 'dont_know') {
-        repeat.push(q.path);
+        repeat.push(q);
       } else if (progress === null) {
-        unknown.push(q.path);
+        unknown.push(q);
       }
     }
 
