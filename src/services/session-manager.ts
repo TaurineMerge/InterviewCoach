@@ -26,7 +26,7 @@ export class SessionManager {
     return sessionId;
   }
 
-  async getCurrentQuestion(sessionId: string): Promise<string | null> {
+  async getCurrentQuestion(sessionId: string): Promise<FileNode | null> {
     const state = await this.sessionStore.get(sessionId);
 
     if (!state) {
@@ -39,33 +39,10 @@ export class SessionManager {
       return null;
     }
 
-    const question = state.questions[state.currentIndex].question;
+    const question = state.questions[state.currentIndex];
 
     if (!question) return null;
     return question;
-  }
-
-  async getCurrentQuestionPath(sessionId: string): Promise<string | null> {
-    const state = await this.sessionStore.get(sessionId);
-
-    if (!state) {
-      logger.warn(`SessionManager > Session "${sessionId}" not found`);
-      return null;
-    }
-
-    if (state.currentIndex >= state.questions.length) {
-      logger.info(`SessionManager > Session "${sessionId}" is finished`);
-      return null;
-    }
-
-    const questionPath = state.questions[state.currentIndex].path;
-    logger.debug(
-      `SessionManager > Current question for session "${sessionId}": "${questionPath}"`,
-    );
-
-    if (!questionPath) return null;
-
-    return questionPath;
   }
 
   async nextQuestion(sessionId: string): Promise<string | null> {
