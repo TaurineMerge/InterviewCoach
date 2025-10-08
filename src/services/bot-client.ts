@@ -4,6 +4,7 @@ import { SessionManager } from '@/services/session-manager.js';
 import { Checklist } from '@/bot/components/checklist.js';
 import { Checkbox } from '@/bot/components/checkbox.js';
 import { ProgressStatus } from '@/models/progress-repository';
+import { parseFileLong } from '@parser/md-parser.js';
 
 export interface SpecificItem {
   label: string;
@@ -34,8 +35,8 @@ export class BotClient {
     this.fsTree = fsTree;
   }
 
-  getClientId(): number {
-    return this.clientId!;
+  getClientId(): number | null {
+    return this.clientId || null;
   }
 
   setClientId(clientId: number): void {
@@ -106,11 +107,12 @@ export class BotClient {
 
   async startSession(): Promise<void> {
     if (!this.clientId) throw new Error('BotClient > Client ID must be set');
-
-    this.sessionId = await this.sessionManager.startSession(
-      this.clientId,
-      await this.getFilteredQuestions(),
-    );
+    if (!this.sessionId) {
+      this.sessionId = await this.sessionManager.startSession(
+        this.clientId,
+        await this.getFilteredQuestions(),
+      );
+    }
   }
 
   private getAllQuestionPaths(): FileNode[] {
@@ -153,14 +155,9 @@ export class BotClient {
     await this.sessionManager.endSession(this.sessionId);
   }
 
-  getCurrentQuestion(): Promise<string | null> {
+  getCurrentQuestion(): Promise<FileNode | null> {
     if (!this.sessionId) return Promise.resolve(null);
     return this.sessionManager.getCurrentQuestion(this.sessionId);
-  }
-
-  getCurrentQuestionPath(): Promise<string | null> {
-    if (!this.sessionId) return Promise.resolve(null);
-    return this.sessionManager.getCurrentQuestionPath(this.sessionId);
   }
 
   getNextQuestion(): Promise<string | null> {
@@ -169,6 +166,13 @@ export class BotClient {
       return Promise.resolve(null);
     }
     return this.sessionManager.nextQuestion(this.sessionId);
+  }
+
+  getLongAnswer(questionPath: string): Promise<string | null> {
+    if (!this.sessionId) return Promise.resolve(null);
+    const answer = parseFileLong(questionPath);
+    if (!answer) return Promise.resolve(null);
+    return Promise.resolve(answer);
   }
 
   markQuestion(questionPath: string, status: ProgressStatus): Promise<void> {
