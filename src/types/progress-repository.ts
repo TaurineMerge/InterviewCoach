@@ -1,6 +1,8 @@
-export type ProgressStatus = 'know' | 'dont_know';
-
-export interface ProgressRepository {
+export enum ProgressStatus {
+  KNOW = 'know',
+  DONT_KNOW = 'dont_know',
+}
+export interface IProgressRepository {
   setQuestionStatus(
     userId: number,
     path: string,

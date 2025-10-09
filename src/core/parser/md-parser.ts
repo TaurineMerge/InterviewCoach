@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
-import { doesFileExist } from '@file-validation/file-validation.js';
-import { logger } from '@logger/logger.js';
+import { doesFileExist } from '@/utils/file-validation/file-validation.js';
+import { logger } from '@/utils/logger/logger.js';
 
 export interface MarkdownParser {
   parseShort(

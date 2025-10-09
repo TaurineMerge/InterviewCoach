@@ -1,10 +1,10 @@
 import {
-  ProgressRepository,
+  IProgressRepository,
   ProgressStatus,
-} from '@models/progress-repository.js';
+} from '@/types/progress-repository.js';
 
 export class ProgressService {
-  constructor(private repo: ProgressRepository) {}
+  constructor(private readonly repo: IProgressRepository) {}
 
   async markQuestion(
     userId: number,

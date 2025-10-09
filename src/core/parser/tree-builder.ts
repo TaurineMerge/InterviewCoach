@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { FileNode, FolderNode, TreeNode } from '@models/node.js';
-import { createIdGenerator } from '@id-generator/id-generator.js';
-import { MarkdownParser } from '@parser/md-parser.js';
+import { FileNode, FolderNode, TreeNode } from '@/types/node.js';
+import { createIdGenerator } from '@/utils/id-generator/id-generator.js';
+import { MarkdownParser } from './md-parser.js';
 
 export class TreeBuilder {
   constructor(private parser: MarkdownParser) {}

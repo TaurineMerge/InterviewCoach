@@ -2,17 +2,15 @@ import TelegramBot from 'node-telegram-bot-api';
 import { combineMarkups } from '../helpers/combineMarkups.js';
 import { Menu } from '../components/menu.js';
 import { showMainMenu } from './shared.js';
-import { BotClient, SpecificItem } from '@/services/bot-client.js';
+import { BotService } from '@/application/bot-service.js';
 import { Question } from '../components/question.js';
+import { ProgressStatus } from '@/types/progress-repository.js';
 
 export function createHandlers(
   navMenu: Menu,
   mainMenu: Menu,
-  client: BotClient,
+  service: BotService,
 ) {
-  const generalChecklist = client.getGeneralChecklist()!;
-  let specificChecklist = client.getSpecificChecklist()!;
-
   const getQuestionMessage = (
     questionText: string,
     answer?: string,
@@ -38,6 +36,9 @@ export function createHandlers(
       const chatId = query.message?.chat.id;
       if (!chatId) return;
 
+      const generalChecklist = service.getGeneralChecklist();
+      if (!generalChecklist) return;
+
       if (id === 'set-topics') {
         await bot.editMessageReplyMarkup(
           combineMarkups(
@@ -47,8 +48,8 @@ export function createHandlers(
           { chat_id: chatId, message_id: query.message!.message_id },
         );
       } else if (id === 'start-interview') {
-        await client.startSession();
-        const curQuestion = await client.getCurrentQuestion();
+        await service.beginSession();
+        const curQuestion = await service.nextQuestion();
         if (curQuestion) {
           const questionData = new Question(
             curQuestion.question,
@@ -70,6 +71,9 @@ export function createHandlers(
       const chatId = query.message?.chat.id;
       if (!chatId) return;
 
+      const generalChecklist = service.getGeneralChecklist();
+      if (!generalChecklist) return;
+
       const index = parseInt(id, 10);
       if (!isNaN(index)) {
         generalChecklist.toggle(index);
@@ -88,21 +92,28 @@ export function createHandlers(
       query: TelegramBot.CallbackQuery,
       bot: TelegramBot,
     ) => {
+      const chatId = query.message?.chat.id;
+      if (!chatId) return;
+
+      const generalChecklist = service.getGeneralChecklist();
+      if (!generalChecklist) return;
+
       if (id === 'next') {
-        client.setGeneralTopics(
+        service.setGeneralTopics(
           generalChecklist.getSelectedItems().map((item) => item.label),
         );
-        client.updateSpecificChecklist();
-        specificChecklist = client.getSpecificChecklist()!;
+
+        service.updateSpecificChecklist();
+
+        const specificChecklist = service.getSpecificChecklist();
+        if (!specificChecklist) return;
+
         await bot.editMessageReplyMarkup(
           combineMarkups(
             specificChecklist.getMarkup('specific'),
             navMenu.getMarkup('nav-specific'),
           ),
-          {
-            chat_id: query.message!.chat.id,
-            message_id: query.message!.message_id,
-          },
+          { chat_id: chatId, message_id: query.message!.message_id },
         );
       } else if (id === 'cancel') {
         return showMainMenu(query, bot, mainMenu);
@@ -116,6 +127,9 @@ export function createHandlers(
     ) => {
       const chatId = query.message?.chat.id;
       if (!chatId) return;
+
+      const specificChecklist = service.getSpecificChecklist();
+      if (!specificChecklist) return;
 
       const index = parseInt(id, 10);
       if (!isNaN(index)) {
@@ -135,11 +149,17 @@ export function createHandlers(
       query: TelegramBot.CallbackQuery,
       bot: TelegramBot,
     ) => {
-      if (id === 'cancel') {
-        return showMainMenu(query, bot, mainMenu);
-      } else if (id === 'next') {
-        client.setSpecificTopics(
-          specificChecklist.getSelectedItems() as SpecificItem[],
+      const chatId = query.message?.chat.id;
+      if (!chatId) return;
+
+      const specificChecklist = service.getSpecificChecklist();
+      if (!specificChecklist) return;
+
+      if (id === 'cancel') return showMainMenu(query, bot, mainMenu);
+
+      if (id === 'next') {
+        service.setSpecificTopics(
+          specificChecklist.getSelectedItems().map((item) => item.label),
         );
         return showMainMenu(query, bot, mainMenu);
       }
@@ -150,138 +170,107 @@ export function createHandlers(
       query: TelegramBot.CallbackQuery,
       bot: TelegramBot,
     ) => {
-      try {
-        const chatId = query.message?.chat.id;
-        const messageId = query.message?.message_id;
+      const chatId = query.message?.chat.id;
+      const messageId = query.message?.message_id;
+      if (!chatId || !messageId) return;
 
-        if (!chatId || !messageId) return;
+      const handlers: Record<string, () => Promise<void>> = {
+        main: async () => showMainMenu(query, bot, mainMenu),
+        skip: async () => {
+          const curQuestion = await service.nextQuestion();
+          if (!curQuestion) return;
 
-        const handlers: Record<string, () => Promise<void>> = {
-          main: async () => showMainMenu(query, bot, mainMenu),
-          skip: async () => {
-            const curQuestion = await client.getNextQuestion();
-            if (curQuestion) {
-              const questionData = new Question(
-                curQuestion,
-              ).getMessageWithMarkup('question');
-              await bot.editMessageText(questionData.text, {
-                chat_id: chatId,
-                message_id: messageId,
-                reply_markup: questionData.reply_markup,
-              });
-            }
-          },
-          know: async () => {
-            const questionNode = await client.getCurrentQuestion();
-            if (!questionNode) return;
-            const questionPath = questionNode.path;
-            if (questionPath) {
-              await client.markQuestion(questionPath, 'know');
-              const curQuestion = await client.getNextQuestion();
-              if (curQuestion) {
-                const questionData = new Question(
-                  curQuestion,
-                ).getMessageWithMarkup('question');
-                await bot.editMessageText(questionData.text, {
-                  chat_id: chatId,
-                  message_id: messageId,
-                  reply_markup: questionData.reply_markup,
-                });
-              }
-            }
-          },
-          'dont-know': async () => {
-            const questionNode = await client.getCurrentQuestion();
-            if (!questionNode) return;
-            const questionPath = questionNode.path;
-            if (questionPath) {
-              await client.markQuestion(questionPath, 'dont_know');
-              const curQuestion = await client.getNextQuestion();
-              if (curQuestion) {
-                const questionData = new Question(
-                  curQuestion,
-                ).getMessageWithMarkup('question');
-                await bot.editMessageText(questionData.text, {
-                  chat_id: chatId,
-                  message_id: messageId,
-                  reply_markup: questionData.reply_markup,
-                });
-              }
-            }
-          },
-          short: async () => {
-            const currentQuestion = await client.getCurrentQuestion();
-            if (!currentQuestion) return;
+          const questionData = new Question(
+            curQuestion.question,
+          ).getMessageWithMarkup('question');
+          await bot.editMessageText(questionData.text, {
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: questionData.reply_markup,
+          });
+        },
+        know: async () => {
+          const questionNode = await service.getCurrentQuestion();
+          if (!questionNode) return;
 
-            const shortAnswer =
-              currentQuestion.shortAnswer || 'Ответ не найден';
-            const updatedText = getQuestionMessage(
-              currentQuestion.question,
-              shortAnswer,
-              'short',
-            );
+          await service.markQuestion(questionNode.path, ProgressStatus.KNOW);
 
-            const currentText = query.message?.text || '';
-            const isShowingShortAnswer =
-              currentText.includes('*Короткий ответ:*');
-            if (currentText.includes(shortAnswer) && isShowingShortAnswer) {
-              await bot.answerCallbackQuery(query.id, {
-                text: 'Изменений нет',
-                show_alert: false,
-              });
-              return;
-            }
+          const nextQ = await service.nextQuestion();
+          if (!nextQ) return;
 
-            await bot.editMessageText(updatedText, {
-              chat_id: chatId,
-              message_id: messageId,
-              reply_markup: new Question(
-                currentQuestion.question,
-              ).getMessageWithMarkup('question').reply_markup,
-              parse_mode: 'MarkdownV2',
-            });
-          },
-          long: async () => {
-            const currentQuestion = await client.getCurrentQuestion();
-            if (!currentQuestion) return;
+          const questionData = new Question(
+            nextQ.question,
+          ).getMessageWithMarkup('question');
+          await bot.editMessageText(questionData.text, {
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: questionData.reply_markup,
+          });
+        },
+        'dont-know': async () => {
+          const questionNode = await service.getCurrentQuestion();
+          if (!questionNode) return;
 
-            const longAnswer =
-              (await client.getLongAnswer(currentQuestion.path)) ||
-              'Ответ не найден';
-            const updatedText = getQuestionMessage(
-              currentQuestion.question,
-              longAnswer,
-              'long',
-            );
+          await service.markQuestion(
+            questionNode.path,
+            ProgressStatus.DONT_KNOW,
+          );
 
-            const currentText = query.message?.text || '';
-            const isShowingLongAnswer =
-              currentText.includes('*Длинный ответ:*');
-            if (currentText.includes(longAnswer) && isShowingLongAnswer) {
-              await bot.answerCallbackQuery(query.id, {
-                text: 'Изменений нет',
-                show_alert: false,
-              });
-              return;
-            }
+          const nextQ = await service.nextQuestion();
+          if (!nextQ) return;
 
-            await bot.editMessageText(updatedText, {
-              chat_id: chatId,
-              message_id: messageId,
-              reply_markup: new Question(
-                currentQuestion.question,
-              ).getMessageWithMarkup('question').reply_markup,
-              parse_mode: 'MarkdownV2',
-            });
-          },
-        };
+          const questionData = new Question(
+            nextQ.question,
+          ).getMessageWithMarkup('question');
+          await bot.editMessageText(questionData.text, {
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: questionData.reply_markup,
+          });
+        },
+        short: async () => {
+          const questionNode = await service.getCurrentQuestion();
+          if (!questionNode) return;
 
-        if (handlers[id]) {
-          await handlers[id]();
-        }
-      } catch (error) {
-        console.error('Error in question handler:', error);
-      }
+          const text = questionNode.shortAnswer ?? 'Ответ не найден';
+          const updatedText = getQuestionMessage(
+            questionNode.question,
+            text,
+            'short',
+          );
+          await bot.editMessageText(updatedText, {
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: new Question(
+              questionNode.question,
+            ).getMessageWithMarkup('question').reply_markup,
+            parse_mode: 'MarkdownV2',
+          });
+        },
+        long: async () => {
+          const questionNode = await service.getCurrentQuestion();
+          if (!questionNode) return;
+
+          const longAnswer =
+            (await service.getLongAnswer(questionNode.path)) ??
+            'Ответ не найден';
+          const updatedText = getQuestionMessage(
+            questionNode.question,
+            longAnswer,
+            'long',
+          );
+          await bot.editMessageText(updatedText, {
+            chat_id: chatId,
+            message_id: messageId,
+            reply_markup: new Question(
+              questionNode.question,
+            ).getMessageWithMarkup('question').reply_markup,
+            parse_mode: 'MarkdownV2',
+          });
+        },
+      };
+
+      if (handlers[id]) await handlers[id]();
     },
   };
 }

@@ -7,10 +7,12 @@ export async function showMainMenu(
   mainMenu: Menu,
 ) {
   const chatId = query.message?.chat.id;
-  if (!chatId) return;
+  const messageId = query.message?.message_id;
+  if (!chatId || !messageId) return;
 
-  await bot.editMessageReplyMarkup(mainMenu.getMarkup('main'), {
+  await bot.editMessageText('Выбирай темы и начинай подготовку!', {
     chat_id: chatId,
-    message_id: query.message!.message_id,
+    message_id: messageId,
+    reply_markup: mainMenu.getMarkup('main'),
   });
 }
