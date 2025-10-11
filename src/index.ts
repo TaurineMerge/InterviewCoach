@@ -17,24 +17,24 @@ import { MongoProgressRepository } from '@/infra/repositories/progress-repositor
 import { RedisSessionRepository } from '@/infra/repositories/session-repository.js';
 
 // CORE LAYER
-import { ProgressService } from '@/core/progress/progress-service.js';
-import { SessionManager } from '@/core/session/session-manager.js';
-import { QuestionFlowService } from '@/core/question/question-flow-service.js';
-import { ChecklistService } from '@/core/checklist/checklist-service.js';
-import { SessionOrchestrator } from '@/core/session/session-orchestrator.js';
-import { ClientContext } from '@/core/session/session-context.js';
 import { TreeBuilder } from '@/core/parser/tree-builder.js';
 import { MarkdownFileParser } from '@/core/parser/md-parser.js';
 
 // APPLICATION LAYER
-import { BotClient } from '@/core/client/bot-client.js';
+import { ProgressService } from '@/application/progress/progress-service.js';
+import { SessionManager } from '@/application/session/session-manager.js';
+import { QuestionFlowService } from '@/application/question/question-flow-service.js';
+import { ChecklistService } from '@/application/checklist/checklist-service.js';
+import { SessionOrchestrator } from '@/application/session/session-orchestrator.js';
+import { ClientContext } from '@/application/session/session-context.js';
+import { BotClient } from '@/application/client/bot-client.js';
 import { BotService } from '@/application/bot-service.js';
 
 // PRESENTATION LAYER
 import { BotController } from '@/bot/bot-controller.js';
 
 // SESSION MANAGEMENT
-import { BotSessionRegistry } from '@/core/client/bot-session-registry.js';
+import { BotSessionRegistry } from '@/application/client/bot-session-registry.js';
 import { IBotClientFactory } from '@/types/bot-client-factory.js';
 
 // LOGGING
@@ -50,19 +50,18 @@ async function main() {
     const progressRepo = new MongoProgressRepository(mongo);
     const sessionRepo = new RedisSessionRepository(redis);
 
-    // Core services
+    // Build the question tree (domain data)
+    const parser = new MarkdownFileParser();
+    const treeBuilder = new TreeBuilder(parser);
+    const fsTree = await treeBuilder.buildTree(process.env.QUESTIONS_ROOT_DIR!);
+
+    // Application layer
     const progressService = new ProgressService(progressRepo);
     const sessionManager = new SessionManager(sessionRepo);
     const checklistService = new ChecklistService();
     const questionFlowService = new QuestionFlowService(progressService);
     const sessionOrchestrator = new SessionOrchestrator(sessionManager);
 
-    // Build the question tree (domain data)
-    const parser = new MarkdownFileParser();
-    const treeBuilder = new TreeBuilder(parser);
-    const fsTree = await treeBuilder.buildTree(process.env.QUESTIONS_ROOT_DIR!);
-
-    // Application: client factory + session registry
     const clientFactory: IBotClientFactory = {
       createClient(userId: number) {
         const context = new ClientContext(userId, fsTree);

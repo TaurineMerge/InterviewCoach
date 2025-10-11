@@ -1,4 +1,4 @@
-import { BotClient } from '@/core/client/bot-client.js';
+import { BotClient } from '@/application/client/bot-client.js';
 import { FileNode } from '@/types/node.js';
 import { ProgressStatus } from '@/types/progress-repository.js';
 
